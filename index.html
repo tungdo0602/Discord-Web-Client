@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <script>
+            window.onload = function(){
+                function log(text){
+                    var a = document.createElement("p")
+                    a.innerText = text;
+                    return document.getElementById("chat").contentDocument.body.appendChild(a)
+                }
+                var Client = {
+                    clientIds: [],
+                    clientName: {},
+                    intervalIds: {},
+                    start: function(clientName, token, channelid){
+                    Client.clientIds.push(clientName)
+                    Client.clientName[clientName] = new WebSocket("wss://gateway.discord.gg/?v=6&encoding=json")
+                    var interval = 0;
+                    var payload = {
+                        op:2,
+                        d: {
+                            token: token,
+                            intents: 513,
+                            properties: {
+                                $os: 'linux',
+                                $browser: 'chrome',
+                                $device: 'chrome'
+                            }
+                        }
+                    }
+                    Client.clientName[clientName].onopen = function open() {
+                        Client.clientName[clientName].send(JSON.stringify(payload))
+                    }
+                    Client.clientName[clientName].onmessage = function incoming(data){
+                        var payload = JSON.parse(data.data)
+                        const {t, event, op, d} = payload;
+                        switch (op) {
+                            case 10:
+                                const {heartbeat_interval} = d;
+                                interval = heartbeat(heartbeat_interval)
+                                break
+                        }
+                        switch (t) {
+                            case 'MESSAGE_CREATE':
+                                let author = d.author.username
+                                let content = d.content
+                                if (d.channel_id === channelid) {
+                                    log(`${author}#${d.author.discriminator}: ${content}`)
+                                }
+                        }
+                    }
+                    
+                    const heartbeat = (ms) => {
+                        Client.intervalIds[clientName] = setInterval(()=>{
+                            Client.clientName[clientName].send(JSON.stringify({op:1, d: null}))
+                        }, ms)
+                        return Client.intervalIds[clientName]
+                    }
+                    },
+                    close: function(clientName) {
+                        for(i of Client.clientIds){
+                            if(clientName==i){
+                                Client.clientName[clientName].onclose = function(){}
+                                Client.clientName[clientName].close()
+                                clearInterval(Client.intervalIds[clientName])
+                                delete Client.clientName[clientName]
+                                delete Client.clientIds[clientName]
+                                delete Client.intervalIds[clientName]
+                                break
+                            } else{
+                                throw new Error("Unknown Client Id!")
+                                break
+                            }
+                        }
+                    }
+                    }
+function sendMessage(token, channelId, message) {
+    return fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': token}, body: JSON.stringify({content: message})})
+}
+document.getElementById("start").onclick = function(){
+    var token = document.getElementById("token").value
+    var channelId = document.getElementById("channelid").value
+    Client.start("test", token, channelId)
+}
+document.getElementById("send").onclick = function(){
+    var message = document.getElementById("chatbox").value
+    var token = document.getElementById("token").value
+    var channelId = document.getElementById("channelid").value
+    sendMessage(token, channelId, message)
+    document.getElementById("chatbox").value = ""
+}
+            }
+        </script>
+        <div id="form1">
+            <label>Token: </label><input id="token" type="password"> <label>Channel Id: </label><input id="channelid" type="text"> <button id="start">Start Client</button><br><br>
+        </div>
+        <iframe style="resize: both;" id="chat"></iframe>
+        <div id="form2">
+            <input id="chatbox" type="text" placeholder="Enter message here."><button id="send">Send Message</button>
+        </div>
+    </body>
+</html>
