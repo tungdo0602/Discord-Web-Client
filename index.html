@@ -41,7 +41,7 @@
                     intervalIds: {},
                     start: function(clientName, token, channelid){
                     if(Client.clientIds.length != 0){
-                        for(i of clientIds) {
+                        for(i of Client.clientIds) {
                             Client.close(i)
                         }
                     }
@@ -88,7 +88,6 @@
                                 let content = d.content
                                 if (channelid.toLowerCase() != 'all'){
                                     if (d.channel_id === channelid) {
-                                        console.log(JSON.parse(data.data))
                                         log(`${author}#${d.author.discriminator}: ${content}`)
                                     }
                                 } else {
