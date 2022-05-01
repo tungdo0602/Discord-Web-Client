@@ -59,8 +59,8 @@
                         } else {
                             document.getElementById("chat").contentDocument.body.prepend(a)
                         }
-                        var b = document.createElement("br")
-                        document.getElementById("chat").contentDocument.body.appendChild(b)
+                        //var b = document.createElement("br")
+                        //document.getElementById("chat").contentDocument.body.appendChild(b)
                     },
                     video: function(src, type=0){
                         var a = document.createElement("video")
@@ -81,8 +81,8 @@
                             } else {
                                 document.getElementById("chat").contentDocument.body.prepend(a)
                             }
-                            var b = document.createElement("br")
-                            document.getElementById("chat").contentDocument.body.appendChild(b)
+                            //var b = document.createElement("br")
+                            //document.getElementById("chat").contentDocument.body.appendChild(b)
                     },
                     file: function(src, text, type=0, download=false){
                         var a = document.createElement("a")
@@ -95,8 +95,8 @@
                         } else{
                             document.getElementById("chat").contentDocument.body.prepend(a)
                         }
-                        var b = document.createElement("br")
-                        document.getElementById("chat").contentDocument.body.appendChild(b)
+                        //var b = document.createElement("br")
+                        //document.getElementById("chat").contentDocument.body.appendChild(b)
                     }
                 }
                 var Client = {
@@ -134,7 +134,7 @@
                         delete Client.intervalIds[clientName]
                         window.setTimeout(function() {
                             Client.start(clientName, token, channelid)
-                        }, 100)
+                        }, 10)
                     }
                     Client.clientName[clientName].onmessage = function incoming(data){
                         var payload = JSON.parse(data.data)
@@ -152,7 +152,6 @@
                                 let content = d.content
                                 if (channelid.toLowerCase() != 'all'){
                                     if (d.channel_id === channelid) {
-                                        console.log(d)
                                         log.text(`${author}#${d.author.discriminator}: ${content}`)
                                         if(d.attachments.length > 0){
                                             for(i of d.attachments){
@@ -239,7 +238,7 @@ document.getElementById("start").onclick = async function(){
         try {await getMessage(token, channelId)} catch { }
     }
     Client.start("test", token, channelId)
-    document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight;
+    document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight
 }
 document.getElementById("send").onclick = function(){
     var message = document.getElementById("chatbox").value
@@ -247,7 +246,7 @@ document.getElementById("send").onclick = function(){
     var channelId = document.getElementById("channelid").value
     if (!token.includes("Bot ")){
     sendMessage(token, channelId, message)
-    document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight;
+    document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight
     document.getElementById("chatbox").value = ""
     }
 }
