@@ -245,8 +245,7 @@ document.getElementById("send").onclick = function(){
     var token = document.getElementById("token").value
     var channelId = document.getElementById("channelid").value
     if (!token.includes("Bot ")){
-    sendMessage(token, channelId, message)
-    document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight
+    sendMessage(token, channelId, message).then(function(){document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight})
     document.getElementById("chatbox").value = ""
     }
 }
