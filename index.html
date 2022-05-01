@@ -86,7 +86,11 @@
                             case 'MESSAGE_CREATE':
                                 let author = d.author.username
                                 let content = d.content
-                                if (d.channel_id === channelid) {
+                                if (channelid.toLowerCase() != 'all'){
+                                    if (d.channel_id === channelid) {
+                                        log(`${author}#${d.author.discriminator}: ${content}`)
+                                    }
+                                } else {
                                     log(`${author}#${d.author.discriminator}: ${content}`)
                                 }
                         }
@@ -117,10 +121,10 @@
                     }
                     }
 function sendMessage(token, channelId, message) {
-    return fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': token}, body: JSON.stringify({content: message})})
+    return fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': token, 'Origin': "https://discord.com"}, body: JSON.stringify({content: message})})
 }
 async function getMessage(token, channelId, limit=50) {
-    var messages = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages?limit=${limit}`, {headers: {'Content-Type': 'application/json', 'authorization': token}}).then(res=>res.json())
+    var messages = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages?limit=${limit}`, {headers: {'Content-Type': 'application/json', 'authorization': token, 'Origin': "https://discord.com"}}).then(res=>res.json())
     for(i of messages) {
         log(`${i.author.username}#${i.author.discriminator}: ${i.content}`, 1)
     }
@@ -129,7 +133,13 @@ document.getElementById("start").onclick = async function(){
     var token = document.getElementById("token").value
     var channelId = document.getElementById("channelid").value
     document.getElementById("chat").contentDocument.body.innerHTML = ``
-    await getMessage(token, channelId)
+    if (token.includes("Bot ")){
+        document.getElementById("chatbox").disabled = true
+        document.getElementById("chatbox").placeholder = `You Can't send message.`
+        document.getElementById("send").style.display = "none"
+    } else {
+        try {await getMessage(token, channelId)} catch { }
+    }
     Client.start("test", token, channelId)
     document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight;
 }
@@ -137,9 +147,11 @@ document.getElementById("send").onclick = function(){
     var message = document.getElementById("chatbox").value
     var token = document.getElementById("token").value
     var channelId = document.getElementById("channelid").value
+    if (!token.includes("Bot ")){
     sendMessage(token, channelId, message)
     document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight;
     document.getElementById("chatbox").value = ""
+    }
 }
 window.onkeydown = function(e){
     if(e.keyCode == 13){
@@ -149,7 +161,7 @@ window.onkeydown = function(e){
 }
         </script>
         <div id="form1">
-            <label>Token: </label><input id="token" type="password"> <label>Channel Id: </label><input id="channelid" type="text"> <button id="start">Start Client</button><br><br>
+            <label>Token: </label><input id="token" type="password" placeholder="Your discord token."> <label>Channel Id: </label><input id="channelid" type="text" placeholder='"all" for all channels'> <button id="start">Start Client</button><br><br>
         </div>
         <iframe style="resize: both;" id="chat"></iframe>
         <div id="form2">
