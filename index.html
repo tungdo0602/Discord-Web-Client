@@ -17,26 +17,6 @@ mark message unread / read-->
         <link href="./libs/no.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-        <style>
-            ::-webkit-scrollbar { 
-                display: none;  /* Safari and Chrome */
-            }
-            .chat-ui::-webkit-scrollbar {
-                width: 10px;
-              }
-              
-            .chat-ui::-webkit-scrollbar-track {
-                background: #f1f1f1; 
-              }
-               
-            .chat-ui::-webkit-scrollbar-thumb {
-                background: #888; 
-              }
-              
-            .chat-ui::-webkit-scrollbar-thumb:hover {
-                background: #555; 
-              }
-        </style>
     </head>
     <body>
         <script>
@@ -287,8 +267,8 @@ window.onkeydown = function(e){
             <div class="underline"></div>
             <label>Channel Id</label>
             </div><br>
-        </div>
-        <div class="input-box chat-ui" style="width:860px;height:400px;overflow:scroll;" id="chat"></div><br><br>
+        </div><!--860px;400px-->
+        <div class="input-box chat-ui" id="chat"></div><br><br>
         <div id="form2">
             <div class="input-form">
             <input id="chatbox" type="text" required disabled>
