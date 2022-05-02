@@ -8,31 +8,39 @@ mark message unread / read-->
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- load MUI -->
+        <link href="./libs/mui.min.css" rel="stylesheet" type="text/css" />
+        <script src="./libs/mui.min.js"></script>
+        <link href="./libs/no.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+        <style>
+            ::-webkit-scrollbar { 
+                display: none;  /* Safari and Chrome */
+            }
+            .chat-ui::-webkit-scrollbar {
+                width: 10px;
+              }
+              
+            .chat-ui::-webkit-scrollbar-track {
+                background: #f1f1f1; 
+              }
+               
+            .chat-ui::-webkit-scrollbar-thumb {
+                background: #888; 
+              }
+              
+            .chat-ui::-webkit-scrollbar-thumb:hover {
+                background: #555; 
+              }
+        </style>
     </head>
     <body>
         <script>
             window.onload = async function(){
-                var style = document.createElement('style');
-                style.innerText = `/* width */
-                ::-webkit-scrollbar {
-                  width: 10px;
-                }
-                
-                /* Track */
-                ::-webkit-scrollbar-track {
-                  background: #f1f1f1; 
-                }
-                 
-                /* Handle */
-                ::-webkit-scrollbar-thumb {
-                  background: #888; 
-                }
-                
-                /* Handle on hover */
-                ::-webkit-scrollbar-thumb:hover {
-                  background: #555; 
-                }`
-                document.getElementById("chat").contentDocument.head.appendChild(style)
                 function getMeta(url, callback) {
                     const img = new Image();
                     img.src = url;
@@ -43,9 +51,9 @@ mark message unread / read-->
                     var a = document.createElement("p")
                     a.innerText = text;
                     if(type==0){
-                    document.getElementById("chat").contentDocument.body.appendChild(a)
+                    document.getElementById("chat").appendChild(a)
                     } else {
-                    document.getElementById("chat").contentDocument.body.prepend(a)
+                    document.getElementById("chat").prepend(a)
                     }
                     },
                     image: function(src, type=0){
@@ -62,12 +70,10 @@ mark message unread / read-->
                             a.style.height = "225px";
                         }
                         if(type==0){
-                            document.getElementById("chat").contentDocument.body.appendChild(a)
+                            document.getElementById("chat").appendChild(a)
                         } else {
-                            document.getElementById("chat").contentDocument.body.prepend(a)
+                            document.getElementById("chat").prepend(a)
                         }
-                        //var b = document.createElement("br")
-                        //document.getElementById("chat").contentDocument.body.appendChild(b)
                     },
                     video: function(src, type=0){
                         var a = document.createElement("video")
@@ -84,12 +90,10 @@ mark message unread / read-->
                                 a.style.height = "225px";
                             }
                             if(type==0){
-                                document.getElementById("chat").contentDocument.body.appendChild(a)
+                                document.getElementById("chat").appendChild(a)
                             } else {
-                                document.getElementById("chat").contentDocument.body.prepend(a)
+                                document.getElementById("chat").prepend(a)
                             }
-                            //var b = document.createElement("br")
-                            //document.getElementById("chat").contentDocument.body.appendChild(b)
                     },
                     file: function(src, text, type=0, download=false){
                         var a = document.createElement("a")
@@ -98,12 +102,10 @@ mark message unread / read-->
                         a.innerText = text;
                         a.target = "_blank"
                         if(type==0){
-                            document.getElementById("chat").contentDocument.body.appendChild(a)
+                            document.getElementById("chat").appendChild(a)
                         } else{
-                            document.getElementById("chat").contentDocument.body.prepend(a)
+                            document.getElementById("chat").prepend(a)
                         }
-                        //var b = document.createElement("br")
-                        //document.getElementById("chat").contentDocument.body.appendChild(b)
                     }
                 }
                 var Client = {
@@ -226,8 +228,7 @@ function sendMessage(token, channelId, message) {
     return fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': token, 'Origin': "https://discord.com"}, body: JSON.stringify({content: message})})
 }
 async function getMessage(token, channelId, limit=50) {
-    var res = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages?limit=${limit}`, {headers: {'Content-Type': 'application/json', 'authorization': token, 'Origin': "https://discord.com"}})
-    var messages = res.then(res=>res.json())
+    var messages = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages?limit=${limit}`, {headers: {'Content-Type': 'application/json', 'authorization': token, 'Origin': "https://discord.com"}}).then(res=>res.json())
     for(d of messages) {
         if(d.attachments.length > 0){
             for(i of d.attachments){
@@ -242,27 +243,28 @@ async function getMessage(token, channelId, limit=50) {
         }
         log.text(`${d.author.username}#${d.author.discriminator}: ${d.content}`, 1)
     }
-    return res
 }
 document.getElementById("start").onclick = async function(){
     var token = document.getElementById("token").value
     var channelId = document.getElementById("channelid").value
-    document.getElementById("chat").contentDocument.body.innerHTML = ``
+    document.getElementById("chat").innerHTML = ``
     if (token.includes("Bot ")){
         document.getElementById("chatbox").disabled = true
-        document.getElementById("chatbox").placeholder = `You Can't send message.`
-        document.getElementById("send").style.display = "none"
+        document.getElementById("send").disabled = true
     } else {
-        try {await getMessage(token, channelId).then(document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight)} catch { }
+        try {await getMessage(token, channelId)} catch { }
+        document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight-document.getElementById("chat").clientHeight
     }
-    Client.start("test", token, channelId).then()
+    Client.start("test", token, channelId)
+    document.getElementById("send").disabled = false
+    document.getElementById("chatbox").disabled = false
 }
 document.getElementById("send").onclick = function(){
     var message = document.getElementById("chatbox").value
     var token = document.getElementById("token").value
     var channelId = document.getElementById("channelid").value
     if (!token.includes("Bot ")){
-    sendMessage(token, channelId, message).then(function(){document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight})
+    sendMessage(token, channelId, message).then(function(){document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight-document.getElementById("chat").clientHeight})
     document.getElementById("chatbox").value = ""
     }
 }
@@ -273,12 +275,29 @@ window.onkeydown = function(e){
 }
 }
         </script>
+        <div class="input-box">
         <div id="form1">
-            <label>Token: </label><input id="token" type="password" placeholder="Your discord token."> <label>Channel Id: </label><input id="channelid" type="text" placeholder='"all" for all channels'> <button id="start">Start Client</button><br><br>
+            <div class="input-form">
+            <input id="token" type="password" required>
+            <div class="underline"></div>
+            <label>Token</label>
+            </div><br>
+            <div class="input-form">
+            <input id="channelid" type="text" required>
+            <div class="underline"></div>
+            <label>Channel Id</label>
+            </div><br>
         </div>
-        <iframe style="resize: both;" id="chat"></iframe>
+        <div class="input-box chat-ui" style="width:860px;height:400px;overflow:scroll;" id="chat"></div><br><br>
         <div id="form2">
-            <input id="chatbox" type="text" placeholder="Enter message here."><button id="send">Send Message</button>
+            <div class="input-form">
+            <input id="chatbox" type="text" required disabled>
+            <div class="underline"></div>
+            <label>Message</label>
+            </div>
+            <button class="mui-btn mui-btn--danger" id="start">Start Client</button>
+            <button class="mui-btn mui-btn--primary" id="send" disabled>Send</button><br>
+        </div>
         </div>
     </body>
 </html>
