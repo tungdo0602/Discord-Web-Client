@@ -1,3 +1,10 @@
+<!--todo: 
+emoji
+handle message delete
+slash command /
+button interactions
+render embed
+mark message unread / read-->
 <!DOCTYPE html>
 <html>
     <head>
@@ -103,8 +110,9 @@
                     clientIds: [],
                     clientName: {},
                     intervalIds: {},
+                    reconnectAttempts: 0,
                     start: function(clientName, token, channelid, isRestart=false){
-                    if(!isRestart){
+                    if(isRestart==false){
                         if(Client.clientIds.length != 0){
                             for(i of Client.clientIds) {
                                 Client.close(i)
@@ -126,6 +134,7 @@
                         }
                     }
                     Client.clientName[clientName].onopen = function open() {
+                        Client.reconnectAttempts = 0
                         Client.clientName[clientName].send(JSON.stringify(payload))
                     }
                     Client.clientName[clientName].onclose = function close() {
@@ -134,9 +143,14 @@
                         delete Client.clientName[clientName]
                         delete Client.clientIds[clientName]
                         delete Client.intervalIds[clientName]
+                        Client.reconnectAttempts += 1
+                        if(Client.reconnectAttempts>=5){
+                            console.log("Reconnect failed!")
+                        } else{
                         window.setTimeout(function() {
                             Client.start(clientName, token, channelid, true)
                         }, 10)
+                    }
                     }
                     Client.clientName[clientName].onmessage = function incoming(data){
                         var payload = JSON.parse(data.data)
@@ -227,6 +241,7 @@ async function getMessage(token, channelId, limit=50) {
         }
         log.text(`${d.author.username}#${d.author.discriminator}: ${d.content}`, 1)
     }
+    return messages
 }
 document.getElementById("start").onclick = async function(){
     var token = document.getElementById("token").value
@@ -237,10 +252,9 @@ document.getElementById("start").onclick = async function(){
         document.getElementById("chatbox").placeholder = `You Can't send message.`
         document.getElementById("send").style.display = "none"
     } else {
-        try {await getMessage(token, channelId)} catch { }
+        try {await getMessage(token, channelId).then(document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight)} catch { }
     }
-    Client.start("test", token, channelId)
-    document.getElementById("chat").contentDocument.body.scrollTop = document.getElementById("chat").contentDocument.body.scrollHeight-document.getElementById("chat").contentDocument.body.clientHeight
+    Client.start("test", token, channelId).then()
 }
 document.getElementById("send").onclick = function(){
     var message = document.getElementById("chatbox").value
