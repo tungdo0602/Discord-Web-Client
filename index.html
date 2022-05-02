@@ -8,12 +8,13 @@ mark message unread / read-->
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Discord Web Client</title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- load MUI -->
         <link href="./libs/mui.min.css" rel="stylesheet" type="text/css" />
-        <script src="./libs/mui.min.js"></script>
+        <script src="./libs/mui.min.js" defer></script>
         <link href="./libs/no.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
@@ -21,14 +22,10 @@ mark message unread / read-->
     <body>
         <script>
             window.onload = async function(){
-                function getMeta(url, callback) {
-                    const img = new Image();
-                    img.src = url;
-                    img.onload = function() { callback(this.width, this.height); }
-                }
                 var log = {
-                    text: function(text, type=0){
+                    text: function(text, message_id, type=0){
                     var a = document.createElement("p")
+                    a.className = `message-${message_id}`
                     a.innerText = text;
                     if(type==0){
                     document.getElementById("chat").appendChild(a)
@@ -39,16 +36,8 @@ mark message unread / read-->
                     image: function(src, type=0){
                         var a = document.createElement("img")
                         a.src = src;
-                        if(getMeta(src, (e,t)=>{if(e==t){return true}else{return false}})){
-                        a.style.width = "300px";
-                        a.style.height = "300px";
-                        } else if(getMeta(src, (e,t)=>{if(e<t){return true}else{return false}})){
-                            a.style.width = "300px";
-                            a.style.height = "180px";
-                        } else {
-                            a.style.width = "400px";
-                            a.style.height = "225px";
-                        }
+                        a.style.width = "80%";
+                        a.style.height = "80%";
                         if(type==0){
                             document.getElementById("chat").appendChild(a)
                         } else {
@@ -59,16 +48,8 @@ mark message unread / read-->
                         var a = document.createElement("video")
                         a.src = src;
                         a.controls = true;
-                        if(getMeta(src, (e,t)=>{if(e==t){return true}else{return false}})){
-                            a.style.width = "300px";
-                            a.style.height = "300px";
-                            } else if(getMeta(src, (e,t)=>{if(e<t){return true}else{return false}})){
-                                a.style.width = "300px";
-                                a.style.height = "180px";
-                            } else {
-                                a.style.width = "400px";
-                                a.style.height = "225px";
-                            }
+                        a.style.width = "80%";
+                        a.style.height = "80%";
                             if(type==0){
                                 document.getElementById("chat").appendChild(a)
                             } else {
@@ -113,11 +94,11 @@ mark message unread / read-->
                             }
                         }
                     }
-                    Client.clientName[clientName].onopen = function open() {
+                    Client.clientName[clientName].onopen = function() {
                         Client.reconnectAttempts = 0
                         Client.clientName[clientName].send(JSON.stringify(payload))
                     }
-                    Client.clientName[clientName].onclose = function close() {
+                    Client.clientName[clientName].onclose = function() {
                         console.log("Reconnecting client...")
                         clearInterval(Client.intervalIds[clientName])
                         delete Client.clientName[clientName]
@@ -126,16 +107,16 @@ mark message unread / read-->
                         Client.reconnectAttempts += 1
                         if(Client.reconnectAttempts>=5){
                             console.log("Reconnect failed!")
+                            Client.reconnectAttempts = 0
                         } else{
                         window.setTimeout(function() {
                             Client.start(clientName, token, channelid, true)
                         }, 10)
                     }
                     }
-                    Client.clientName[clientName].onmessage = function incoming(data){
+                    Client.clientName[clientName].onmessage = function(data){
                         var payload = JSON.parse(data.data)
                         const {t, s, op, d} = payload;
-                        
                         switch (op) {
                             case 10:
                                 const {heartbeat_interval} = d;
@@ -148,7 +129,7 @@ mark message unread / read-->
                                 let content = d.content
                                 if (channelid.toLowerCase() != 'all'){
                                     if (d.channel_id === channelid) {
-                                        log.text(`${author}#${d.author.discriminator}: ${content}`)
+                                        log.text(`${author}#${d.author.discriminator}: ${content}`, d.id)
                                         if(d.attachments.length > 0){
                                             for(i of d.attachments){
                                                 if(i.content_type.includes("image")){
@@ -162,7 +143,7 @@ mark message unread / read-->
                                         }
                                     }
                                 } else {
-                                    log.text(`${author}#${d.author.discriminator}: ${content}`)
+                                    log.text(`${author}#${d.author.discriminator}: ${content}`, d.id)
                                     if(d.attachments.length > 0){
                                         for(i of d.attachments){
                                             if(i.content_type.includes("image")){
@@ -175,6 +156,20 @@ mark message unread / read-->
                                         }
                                     }
                                 }
+                                break;
+                            case 'MESSAGE_DELETE':
+                                if (channelid.toLowerCase() != 'all'){
+                                    if(d.channel_id==channelid){
+                                        if(document.querySelector(".message-"+d.id)){
+                                            document.querySelector(".message-"+d.id).style.color = "red";
+                                        }
+                                    }
+                                } else {
+                                    if(document.querySelector(".message-"+d.id)){
+                                        document.querySelector(".message-"+d.id).style.color = "red";
+                                    }
+                                }
+                                break;
                         }
                     }
                     
@@ -188,7 +183,6 @@ mark message unread / read-->
                     close: function(clientName) {
                         for(i in Client.clientIds){
                             if(clientName==Client.clientIds[i]){
-                                console.log(Client)
                                 Client.clientName[clientName].onclose = function(){}
                                 Client.clientName[clientName].close()
                                 clearInterval(Client.intervalIds[clientName])
@@ -220,7 +214,7 @@ async function getMessage(token, channelId, limit=50) {
                 }
             }
         }
-        log.text(`${d.author.username}#${d.author.discriminator}: ${d.content}`, 1)
+        log.text(`${d.author.username}#${d.author.discriminator}: ${d.content}`, d.id, 1)
     }
 }
 document.getElementById("start").onclick = async function(){
