@@ -226,7 +226,8 @@ function sendMessage(token, channelId, message) {
     return fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': token, 'Origin': "https://discord.com"}, body: JSON.stringify({content: message})})
 }
 async function getMessage(token, channelId, limit=50) {
-    var messages = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages?limit=${limit}`, {headers: {'Content-Type': 'application/json', 'authorization': token, 'Origin': "https://discord.com"}}).then(res=>res.json())
+    var res = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages?limit=${limit}`, {headers: {'Content-Type': 'application/json', 'authorization': token, 'Origin': "https://discord.com"}})
+    var messages = res.then(res=>res.json())
     for(d of messages) {
         if(d.attachments.length > 0){
             for(i of d.attachments){
@@ -241,7 +242,7 @@ async function getMessage(token, channelId, limit=50) {
         }
         log.text(`${d.author.username}#${d.author.discriminator}: ${d.content}`, 1)
     }
-    return messages
+    return res
 }
 document.getElementById("start").onclick = async function(){
     var token = document.getElementById("token").value
