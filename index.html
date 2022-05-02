@@ -103,10 +103,12 @@
                     clientIds: [],
                     clientName: {},
                     intervalIds: {},
-                    start: function(clientName, token, channelid){
-                    if(Client.clientIds.length != 0){
-                        for(i of Client.clientIds) {
-                            Client.close(i)
+                    start: function(clientName, token, channelid, isRestart=false){
+                    if(!isRestart){
+                        if(Client.clientIds.length != 0){
+                            for(i of Client.clientIds) {
+                                Client.close(i)
+                            }
                         }
                     }
                     Client.clientIds.push(clientName)
@@ -133,7 +135,7 @@
                         delete Client.clientIds[clientName]
                         delete Client.intervalIds[clientName]
                         window.setTimeout(function() {
-                            Client.start(clientName, token, channelid)
+                            Client.start(clientName, token, channelid, true)
                         }, 10)
                     }
                     Client.clientName[clientName].onmessage = function incoming(data){
