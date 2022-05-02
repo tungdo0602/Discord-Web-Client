@@ -93,14 +93,12 @@ mark message unread / read-->
                     clientName: {},
                     intervalIds: {},
                     reconnectAttempts: 0,
-                    start: function(clientName, token, channelid, isRestart=false){
-                    if(isRestart==false){
-                        if(Client.clientIds.length != 0){
+                    start: function(clientName, token, channelid){
+                        if(Client.clientIds.length > 0){
                             for(i of Client.clientIds) {
                                 Client.close(i)
                             }
                         }
-                    }
                     Client.clientIds.push(clientName)
                     Client.clientName[clientName] = new WebSocket("wss://gateway.discord.gg/?v=6&encoding=json")
                     var interval = 0;
@@ -123,7 +121,7 @@ mark message unread / read-->
                         console.log("Reconnecting client...")
                         clearInterval(Client.intervalIds[clientName])
                         delete Client.clientName[clientName]
-                        delete Client.clientIds[clientName]
+                        Client.clientIds.splice(Client.clientIds.indexOf(clientName), 1)
                         delete Client.intervalIds[clientName]
                         Client.reconnectAttempts += 1
                         if(Client.reconnectAttempts>=5){
@@ -188,17 +186,18 @@ mark message unread / read-->
                     }
                     },
                     close: function(clientName) {
-                        for(i of Client.clientIds){
-                            if(clientName==i){
+                        for(i in Client.clientIds){
+                            if(clientName==Client.clientIds[i]){
+                                console.log(Client)
                                 Client.clientName[clientName].onclose = function(){}
                                 Client.clientName[clientName].close()
                                 clearInterval(Client.intervalIds[clientName])
                                 delete Client.clientName[clientName]
-                                delete Client.clientIds[clientName]
+                                Client.clientIds.splice(Client.clientIds.indexOf(clientName), 1)
                                 delete Client.intervalIds[clientName]
                                 break
                             } else{
-                                throw new Error("Unknown Client Id!")
+                                console.warn("Unknown Client Id!")
                                 break
                             }
                         }
@@ -235,7 +234,7 @@ document.getElementById("start").onclick = async function(){
         try {await getMessage(token, channelId)} catch { }
         document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight-document.getElementById("chat").clientHeight
     }
-    Client.start("test", token, channelId)
+    Client.start(Math.random(), token, channelId)
     document.getElementById("send").disabled = false
     document.getElementById("chatbox").disabled = false
 }
