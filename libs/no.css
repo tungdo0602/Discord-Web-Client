@@ -7,7 +7,8 @@
    font-family: 'Roboto', sans-serif;
  }
  body{
-   background-color: #ffffff;
+   font-family: 'Roboto';
+   background-color: #001e3c;
    -ms-overflow-style: none;  /* Internet Explorer 10+ */
    scrollbar-width: none;  /* Firefox */
    width: 100%;
@@ -20,10 +21,16 @@
  }
  .input-box{
    position: relative;
-   background: rgb(255, 255, 255);
+   background: #0a1929;
    padding: 30px;
    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
  }
+ .form1{
+  position: relative;
+  background: #0a1929;
+  padding: 30px;
+  border: 2px solid #253849;
+}
  .input-box .input-form{
    height: 40px;
    width: 100%;
@@ -34,19 +41,21 @@
    width: 100%;
    border: none;
    font-size: 17px;
-   border-bottom: 2px solid silver;
+   background-color: #0a1929;
+   color: #FFFFFF;
+   border-bottom: 2px solid #434e5b;
  }
  .input-form input:focus ~ label,
  .input-form input:valid ~ label{
    transform: translateY(-20px);
    font-size: 15px;
-   color: #4158d0;
+   color: #a6d2e4;
  }
  .input-box .input-form label{
    position: absolute;
    bottom: 10px;
    left: 0;
-   color: grey;
+   color: #939aa1;
    pointer-events: none;
    transition: all 0.3s ease;
  }
@@ -61,7 +70,7 @@
    content: "";
    height: 100%;
    width: 100%;
-   background: #4158d0;
+   background: #a6d2e4;
    transform: scaleX(0);
    transform-origin: center;
    transition: transform 0.3s ease;
@@ -90,4 +99,8 @@
 
 .chat-ui::-webkit-scrollbar-thumb:hover {
   background: #555; 
+}
+.small-message-badge {
+  font-style:italic;
+  font-size:x-small;
 }
