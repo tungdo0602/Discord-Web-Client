@@ -25,12 +25,6 @@
    padding: 30px;
    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
  }
- .form1{
-  position: relative;
-  background: #0a1929;
-  padding: 30px;
-  border: 2px solid #253849;
-}
  .input-box .input-form{
    height: 40px;
    width: 100%;
@@ -80,6 +74,11 @@
    transform: scaleX(1);
  }
  .chat-ui {
+  position: relative;
+  background: #0a1929;
+  color: #FFFFFF;
+  padding: 30px;
+  border: 2px solid #253849;
   width:860px;
   height:400px;
   overflow-y:auto;
