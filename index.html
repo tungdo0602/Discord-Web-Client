@@ -25,7 +25,7 @@ mark message unread / read-->
                 var log = {
                     text: function(text, message_id, type=0){
                     var a = document.createElement("p")
-                    a.className = `message-${message_id}`
+                    a.id = `message-${message_id}`
                     a.innerText = text;
                     if(type==0){
                     document.getElementById("chat").appendChild(a)
@@ -67,6 +67,12 @@ mark message unread / read-->
                         } else{
                             document.getElementById("chat").prepend(a)
                         }
+                    },
+                    badge: function(elem, text) {
+                        var a = document.createElement("sub")
+                        a.className = 'small-message-badge'
+                        a.innerText = text
+                        elem.appendChild(a)
                     }
                 }
                 var Client = {
@@ -134,7 +140,7 @@ mark message unread / read-->
                                             for(i of d.attachments){
                                                 if(i.content_type.includes("image")){
                                                     log.image(i.url)
-                                                } else if(i.content_type.includes("video")) {
+                                                } else if(i.content_type.includes("video")){
                                                     log.video(i.url)
                                                 } else {
                                                     log.file(i.url, i.filename)
@@ -160,13 +166,14 @@ mark message unread / read-->
                             case 'MESSAGE_DELETE':
                                 if (channelid.toLowerCase() != 'all'){
                                     if(d.channel_id==channelid){
-                                        if(document.querySelector(".message-"+d.id)){
-                                            document.querySelector(".message-"+d.id).style.color = "red";
+                                        if(document.querySelector("#message-"+d.id)){
+                                            //document.querySelector(".message-"+d.id).style.color = "red";
+                                            log.badge(document.querySelector("#message-"+d.id), " (deleted)")
                                         }
                                     }
                                 } else {
-                                    if(document.querySelector(".message-"+d.id)){
-                                        document.querySelector(".message-"+d.id).style.color = "red";
+                                    if(document.querySelector("#message-"+d.id)){
+                                        log.badge(document.querySelector("#message-"+d.id), " (deleted)")
                                     }
                                 }
                                 break;
@@ -260,8 +267,8 @@ window.onkeydown = function(e){
             <div class="underline"></div>
             <label>Channel Id</label>
             </div><br>
-        </div><!--860px;400px-->
-        <div class="input-box chat-ui" id="chat"></div><br><br>
+        </div>
+        <div class="form1 chat-ui" id="chat"></div><br><br>
         <div id="form2">
             <div class="input-form">
             <input id="chatbox" type="text" required disabled>
