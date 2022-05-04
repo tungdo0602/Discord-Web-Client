@@ -73,7 +73,7 @@ var log = {
                 }
             }
         Client.clientIds.push(clientName)
-        Client.clientName[clientName] = new WebSocket("wss://gateway.discord.gg/?v=6&encoding=json")
+        Client.clientName[clientName] = new WebSocket("wss://gateway.discord.gg/?v=9&encoding=json")
         var interval = 0;
         var payload = {
             op:2,
